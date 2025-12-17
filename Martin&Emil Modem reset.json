@@ -38,8 +38,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -896,
-        160
+        -912,
+        192
       ]
     },
     {
@@ -49,8 +49,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -880,
-        416
+        -912,
+        432
       ]
     },
     {
@@ -78,7 +78,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -608,
+        -496,
         416
       ]
     },
@@ -104,8 +104,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        -512,
-        -160
+        -528,
+        -128
       ],
       "credentials": {
         "oAuth2Api": {
@@ -135,7 +135,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        -416,
+        -304,
         416
       ],
       "credentials": {
@@ -158,8 +158,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        -512,
-        0
+        -528,
+        32
       ],
       "credentials": {
         "oAuth2Api": {
@@ -180,8 +180,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        -512,
-        176
+        -528,
+        208
       ],
       "credentials": {
         "oAuth2Api": {
@@ -200,8 +200,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -720,
-        160
+        -736,
+        192
       ]
     },
     {
@@ -214,7 +214,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -208,
+        -96,
         416
       ],
       "id": "fbb87052-8002-4afb-a782-1be132b0b6d1",
@@ -228,7 +228,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        0,
+        112,
         416
       ],
       "id": "898351ef-e541-416f-9306-82155cb6edfb",
@@ -241,7 +241,7 @@
             {
               "id": "serial-list-001",
               "name": "SERIAL_NUMBERS_RAW",
-              "value": "1934-8C57-1F96",
+              "value": "293B-2B6D-47C2 192E-DB27-9423 1934-8C57-1F95 1934-8C57-1F96",
               "type": "string"
             }
           ]
@@ -253,21 +253,21 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -880,
-        816
+        -672,
+        672
       ]
     },
     {
       "parameters": {
-        "jsCode": "const rawSerials = $('Paste Serial Numbers Here').first().json.SERIAL_NUMBERS_RAW;\nconst serialsToCheck = rawSerials.split(/[\\n,\\t]+/).map(s => s.trim()).filter(s => s.length > 0);\nconst serialSet = new Set(serialsToCheck);\nconsole.log('Serial numbers to check:', Array.from(serialSet));\nconst deviceInput = $('Split Out ID,SN and name').all();\nconst matchedDevices = [];\nfor (const item of deviceInput) {\n  const deviceSerial = item.json.sn || item.json['DEVICES. sn'];\n  const deviceId = item.json.id || item.json['DEVICES. id'];\n  const deviceName = item.json.name || item.json['DEVICES. name'];\n  if (! deviceSerial) continue;\n  const cleanSerial = deviceSerial.toString().trim();\n  if (serialSet.has(cleanSerial)) {\n    matchedDevices. push({\n      json: {\n        DEVICE_TO_CHECK: deviceId,\n        sn: cleanSerial,\n        name: deviceName,\n        group_id: item.json.group_id || item.json['DEVICES.group_id'],\n        group_name: item.json.group_name || item.json['DEVICES.group_name'],\n        ORG_TO_CHECK: $('Set desired org param').first().json.ORG_TO_CHECK,\n        GROUP_TO_CHECK: $('Set desired org param').first().json.GROUP_TO_CHECK\n      }\n    });\n  }\n}\nif (matchedDevices.length === 0) throw new Error('No matching devices found!');\nreturn matchedDevices;"
+        "jsCode": "const rawSerials = $('Paste Serial Numbers Here').first().json.SERIAL_NUMBERS_RAW;\nconst serialsToCheck = rawSerials.split(/[\\n,\\t\\s]+/).map(s => s.trim()).filter(s => s.length > 0);\nconst serialSet = new Set(serialsToCheck);\nconsole.log('Serial numbers to check:', Array.from(serialSet));\nconst deviceInput = $('Split Out ID,SN and name').all();\nconst matchedDevices = [];\nfor (const item of deviceInput) {\n  const deviceSerial = item.json.sn || item.json['DEVICES.sn'];\n  const deviceId = item.json.id || item.json['DEVICES.id'];\n  const deviceName = item.json.name || item.json['DEVICES.name'];\n  if (! deviceSerial) continue;\n  const cleanSerial = deviceSerial.toString().trim();\n  if (serialSet.has(cleanSerial)) {\n    matchedDevices. push({\n      json: {\n        DEVICE_TO_CHECK: deviceId,\n        sn: cleanSerial,\n        name: deviceName,\n        group_id: item.json.group_id || item.json['DEVICES.group_id'],\n        group_name: item.json.group_name || item.json['DEVICES.group_name'],\n        ORG_TO_CHECK: $('Looking into the Organization manually').first().json.ORG_TO_CHECK,\n        GROUP_TO_CHECK:  $('Looking into the Organization manually').first().json.GROUP_TO_CHECK\n      }\n    });\n  }\n}\nif (matchedDevices.length === 0) {\n  return [{\n    no_matches: true,\n    message: \"No devices matched the provided serial numbers\"\n  }];\n}\nreturn matchedDevices;"
       },
       "id": "b57db4b1-3238-490e-a2bf-88614921baf3",
       "name": "Filter Devices by Serial List",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -672,
-        816
+        -432,
+        688
       ]
     },
     {
@@ -280,12 +280,12 @@
       "typeVersion": 3,
       "position": [
         -432,
-        816
+        896
       ]
     },
     {
       "parameters": {
-        "url": "=https://incontrol.venn.be/rest/o/{{ $json. ORG_TO_CHECK }}/n/{{ $json.GROUP_TO_CHECK }}/d/{{ $json.DEVICE_TO_CHECK }}/wan/status/",
+        "url": "=https://incontrol.venn.be/rest/o/{{$json. ORG_TO_CHECK}}/g/{{$json.GROUP_TO_CHECK}}/d/{{$json.DEVICE_TO_CHECK}}",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
         "options": {}
@@ -295,8 +295,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -208,
-        816
+        -256,
+        1072
       ],
       "credentials": {
         "oAuth2Api": {
@@ -307,41 +307,8 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 1
-          },
-          "conditions": [
-            {
-              "id": "wan1-active-check",
-              "leftValue": "={{ $json.data. response['1'].statusLed }}",
-              "rightValue": "green",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "ab6d1734-83d8-4430-8319-4b85f21baeaa",
-      "name": "Is WAN 1 Active?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        16,
-        816
-      ]
-    },
-    {
-      "parameters": {
         "method": "POST",
-        "url": "=https://incontrol.venn.be/rest/o/{{ $('Process One Device at a Time').item.json.ORG_TO_CHECK }}/n/{{ $('Process One Device at a Time').item.json.GROUP_TO_CHECK }}/d/{{ $('Process One Device at a Time').item.json.DEVICE_TO_CHECK }}/wan/connection/reset/",
+        "url": "=https://incontrol.venn.be/rest/o/{{ $('Process One Device at a Time').item.json.ORG_TO_CHECK }}/n/{{ $('Process One Device at a Time').item.json.GROUP_TO_CHECK }}/d/{{ $('Process One Device at a Time').item.json.DEVICE_TO_CHECK }}/devapi/cmd.cellularModule.reset",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
         "sendBody": true,
@@ -349,7 +316,7 @@
           "parameters": [
             {
               "name": "connId",
-              "value": "2"
+              "value": "3"
             }
           ]
         },
@@ -360,8 +327,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        224,
-        720
+        512,
+        848
       ],
       "credentials": {
         "oAuth2Api": {
@@ -372,37 +339,15 @@
     },
     {
       "parameters": {
-        "url": "=https://incontrol.venn.be/rest/o/{{ $('Process One Device at a Time').item.json.ORG_TO_CHECK }}/n/{{ $('Process One Device at a Time').item.json.GROUP_TO_CHECK }}/d/{{ $('Process One Device at a Time').item.json.DEVICE_TO_CHECK }}/wan/status/",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "oAuth2Api",
-        "options": {}
-      },
-      "id": "ee874cb9-94e2-4ef6-b84b-d3462610b63b",
-      "name": "Check Reset Status",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        576,
-        720
-      ],
-      "credentials": {
-        "oAuth2Api": {
-          "id": "r8P6FPo86SXxdOuV",
-          "name": "Maciej Peplink API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "const wan2 = $json.data.response['2'];\nconst deviceInfo = $('Process One Device at a Time').item.json;\nconst resetComplete = wan2 && wan2.statusLed !== 'red';\nconst startTime = $('Reset Cellular WAN 2').first().json.timestamp || Date.now();\nconst elapsed = (Date.now() - startTime) / 1000;\nconst timeout = elapsed > 300;\nif (resetComplete) {\n  return [{json: {sn: deviceInfo.sn, name: deviceInfo.name, device_id: deviceInfo. DEVICE_TO_CHECK, status:  'SUCCESS', message: 'WAN 2 reset completed', wan2Status: wan2.statusLed, elapsed: Math.round(elapsed)}}];\n} else if (timeout) {\n  return [{json: {sn: deviceInfo.sn, name: deviceInfo.name, device_id: deviceInfo.DEVICE_TO_CHECK, status: 'TIMEOUT', message: 'Reset timeout after 5 minutes', wan2Status: wan2.statusLed, elapsed: Math.round(elapsed)}}];\n} else {\n  throw new Error('Reset in progress');\n}"
+        "jsCode": "const wan2 = $json.data.response['3'];\nconst deviceInfo = $('Process One Device at a Time').item.json;\nconst resetComplete = wan2 && wan2.statusLed !== 'red';\nconst startTime = $('Reset Cellular WAN 2').first().json.timestamp || Date.now();\nconst elapsed = (Date.now() - startTime) / 1000;\nconst timeout = elapsed > 300;\nif (resetComplete) {\n  return [{json: {sn: deviceInfo.sn, name: deviceInfo.name, device_id: deviceInfo. DEVICE_TO_CHECK, status:  'SUCCESS', message: 'WAN 2 reset completed', wan2Status: wan2.statusLed, elapsed: Math.round(elapsed)}}];\n} else if (timeout) {\n  return [{json: {sn: deviceInfo.sn, name: deviceInfo.name, device_id: deviceInfo.DEVICE_TO_CHECK, status: 'TIMEOUT', message: 'Reset timeout after 5 minutes', wan2Status: wan2.statusLed, elapsed: Math.round(elapsed)}}];\n} else {\n  throw new Error('Reset in progress');\n}"
       },
       "id": "6131c6cb-cff9-46d9-a5d2-5eb5d66aaa52",
       "name": "Evaluate Reset Status",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        752,
-        720
+        848,
+        912
       ],
       "alwaysOutputData": false,
       "onError": "continueErrorOutput"
@@ -451,66 +396,38 @@
       "typeVersion": 3.4,
       "position": [
         224,
-        928
+        1088
       ]
     },
     {
       "parameters": {
-        "mode": "combine",
-        "combineBy": "combineAll",
-        "options": {}
-      },
-      "id": "982774e3-618d-4a5d-ba9e-570b8976fc3e",
-      "name": "Combine Results",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3,
-      "position": [
-        576,
-        928
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const allResults = $input.all();\nconst succeeded = [];\nconst failed = [];\nconst skipped = [];\nconst timedOut = [];\nfor (const item of allResults) {\n  const result = item. json;\n  switch(result. status) {\n    case 'SUCCESS':  succeeded.push(result); break;\n    case 'TIMEOUT': timedOut.push(result); break;\n    case 'SKIPPED': skipped. push(result); break;\n    default: failed.push(result);\n  }\n}\nconst summary = {\n  json: {\n    totalProcessed: allResults.length,\n    succeeded: succeeded.length,\n    failed: failed.length,\n    skipped: skipped.length,\n    timedOut: timedOut.length,\n    succeededDevices:  succeeded.map(d => d.sn + ' (' + d.name + ')'),\n    failedDevices: failed.map(d => d.sn + ' (' + d.name + ')'),\n    skippedDevices: skipped.map(d => d. sn + ' (' + d.name + ')'),\n    timedOutDevices: timedOut.map(d => d. sn + ' (' + d.name + ')'),\n    allResults: allResults.map(r => r.json)\n  }\n};\nconsole.log('WORKFLOW COMPLETE');\nconsole.log('Total:  ' + summary.json.totalProcessed);\nconsole.log('Succeeded: ' + summary. json.succeeded);\nconsole.log('Failed: ' + summary.json.failed);\nconsole.log('Skipped: ' + summary.json.skipped);\nconsole.log('Timed Out: ' + summary.json.timedOut);\nreturn [summary];"
+        "jsCode": "const allResults = $input. all();\n\n// Check if this is a \"no matches\" scenario\nif (allResults.length === 1 && allResults[0].json.no_matches === true) {\n  // Get the serial numbers that were requested\n  const requestedSerials = $('Paste Serial Numbers Here').first().json. SERIAL_NUMBERS_RAW\n    .split(/[\\n,\\t\\s]+/)\n    .map(s => s.trim())\n    .filter(s => s. length > 0);\n  \n  const summary = {\n    json: {\n      totalProcessed: 0,\n      succeeded: 0,\n      failed: 0,\n      skipped: 0,\n      timedOut: 0,\n      notFound: requestedSerials.length,\n      succeededDevices: [],\n      failedDevices: [],\n      skippedDevices: [],\n      timedOutDevices: [],\n      notFoundSerials: requestedSerials,\n      message: \"No devices matched the provided serial numbers\"\n    }\n  };\n  \n  console.log('WORKFLOW COMPLETE - NO MATCHES FOUND');\n  console.log('Not Found: ' + requestedSerials.join(', '));\n  return [summary];\n}\n\n// Normal processing\nconst succeeded = [];\nconst failed = [];\nconst skipped = [];\nconst timedOut = [];\nconst processedSerials = new Set();\n\nfor (const item of allResults) {\n  const result = item.json;\n  if (result.sn) processedSerials.add(result. sn);\n  \n  switch(result.status) {\n    case 'SUCCESS':  succeeded.push(result); break;\n    case 'TIMEOUT':  timedOut.push(result); break;\n    case 'SKIPPED': skipped.push(result); break;\n    default:  failed.push(result);\n  }\n}\n\n// Get requested serials and find which ones weren't processed\nconst requestedSerials = $('Paste Serial Numbers Here').first().json.SERIAL_NUMBERS_RAW\n  .split(/[\\n,\\t\\s]+/)\n  .map(s => s. trim())\n  .filter(s => s.length > 0);\n\nconst notFoundSerials = requestedSerials.filter(serial => ! processedSerials.has(serial));\n\nconst summary = {\n  json: {\n    totalProcessed: allResults.length,\n    succeeded: succeeded.length,\n    failed: failed.length,\n    skipped: skipped.length,\n    timedOut: timedOut.length,\n    notFound: notFoundSerials.length,\n    succeededDevices: succeeded.map(d => d.sn + ' (' + d. name + ')'),\n    failedDevices: failed.map(d => d.sn + ' (' + d.name + ')'),\n    skippedDevices:  skipped.map(d => d.sn + ' (' + d.name + ')'),\n    timedOutDevices: timedOut.map(d => d. sn + ' (' + d.name + ')'),\n    notFoundSerials: notFoundSerials,\n    allResults: allResults.map(r => r.json)\n  }\n};\n\nconsole.log('WORKFLOW COMPLETE');\nconsole.log('Total:  ' + summary.json.totalProcessed);\nconsole.log('Succeeded: ' + summary.json. succeeded);\nconsole.log('Failed: ' + summary.json.failed);\nconsole.log('Skipped: ' + summary.json. skipped);\nconsole.log('Timed Out: ' + summary.json.timedOut);\nconsole.log('Not Found: ' + summary.json.notFound + ' - ' + notFoundSerials.join(', '));\n\nreturn [summary];"
       },
       "id": "3ecc0716-13bb-4b0d-851f-abeebff607ab",
       "name": "Generate Final Summary",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        960,
-        944
-      ]
+        1216,
+        704
+      ],
+      "alwaysOutputData": true
     },
     {
       "parameters": {
         "content": "## DW\n",
-        "height": 528,
-        "width": 2656,
+        "height": 656,
+        "width": 2480,
         "color": 6
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -944,
+        -976,
         624
       ],
       "typeVersion": 1,
       "id": "58d97c31-4d4c-483a-90c8-e8ef988f3f10",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "unit": "minutes"
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        400,
-        720
-      ],
-      "id": "adb29d53-801d-4dab-b2e0-e701832fd25d",
-      "name": "Wait 5 Minutes",
-      "webhookId": "18f24bfb-3fd5-492b-99bc-a6862b9d6d86"
     },
     {
       "parameters": {
@@ -524,12 +441,12 @@
           "conditions": [
             {
               "id": "2cd11737-fbfc-42e6-a2ee-310194caacdd",
-              "leftValue": "={{ $('Process One Device at a Time').context.noItemsLeft }}",
+              "leftValue": "={{ $('Process One Device at a Time').context.noItemsLeft === false }}",
               "rightValue": "false",
               "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
               }
             }
           ],
@@ -540,8 +457,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        736,
-        928
+        1040,
+        1088
       ],
       "id": "7988df16-c045-4bc9-b0df-7707734e6bd3",
       "name": "More Devices to Process?"
@@ -550,12 +467,12 @@
       "parameters": {
         "content": "## Emil",
         "height": 256,
-        "width": 1104,
+        "width": 1248,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -944,
+        -976,
         368
       ],
       "typeVersion": 1,
@@ -565,18 +482,212 @@
     {
       "parameters": {
         "content": "## Maciej",
-        "height": 624,
+        "height": 528,
         "width": 656,
         "color": 5
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -944,
-        -256
+        -976,
+        -160
       ],
       "typeVersion": 1,
       "id": "bd4d1d98-d240-4cb0-bad5-b26930f2c38b",
       "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "check-devices-exist",
+              "leftValue": "={{ $json.no_matches }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d1b8a05f-aae9-4634-b1d2-d6d9eec318dc",
+      "name": "Any Devices Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## What does this thing do?! \nCopies the pasted Serial Numbers \nGets the devices in the group defined by the group ID and sorts out the Serial numbers\nChecks the Serial numbers in the group against the list you pasted\nGoes one by on and checks the Cellular 1 Status\n    If it's on the list it Resets Cellular 2\n    If it's not on the list it skips it\nAfter the list is done it compiles a report of Serial numbers that had the reset executed, skipped and not found.\n\n",
+        "height": 256,
+        "width": 800,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -192,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "89781b0e-947c-42d0-b766-93e1c2484f6c",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Step 1!! ->",
+        "height": 80,
+        "width": 150,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        688
+      ],
+      "typeVersion": 1,
+      "id": "548688e2-6c1f-46c8-b90f-b4325b28c956",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Step 2!! ->",
+        "height": 80,
+        "width": 150,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "5d4483f7-03f8-4e45-96b3-84c6b03f8f2d",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "wan1-active-check",
+              "leftValue": "={{ ($json.data.interfaces[0].status === 'Connected') || ($json.data.interfaces[1].status === 'Standby') || ($json.data.interfaces[1].status && $json.data.interfaces[1].status. includes('Connected to')) }}",
+              "rightValue": "Standby",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "ab6d1734-83d8-4430-8319-4b85f21baeaa",
+      "name": "Is WAN 1 or Cellular WAN 1 Active?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0ade84e3-4eb9-4aa3-ab79-bcd524f9e33a",
+              "leftValue": "={{ $json.data.interfaces.filter(i => i.virtualType === 'cellular').length }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        912
+      ],
+      "id": "8510b4fe-6cbf-4483-92ee-ecbee6776a76",
+      "name": "Has 2 Cellular WANs?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://incontrol.venn.be/rest/o/{{ $('Process One Device at a Time').item.json.ORG_TO_CHECK }}/n/{{ $('Process One Device at a Time').item.json.GROUP_TO_CHECK }}/d/{{ $('Process One Device at a Time').item.json.DEVICE_TO_CHECK }}/devapi/cmd.cellularModule.reset",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "connId",
+              "value": "2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        976
+      ],
+      "id": "24b73d4f-beb7-482b-8c3c-65af39c24f51",
+      "name": "Reset Cellular WAN 1",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "r8P6FPo86SXxdOuV",
+          "name": "Maciej Peplink API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        912
+      ],
+      "id": "adb29d53-801d-4dab-b2e0-e701832fd25d",
+      "name": "Wait 10 Seconds",
+      "webhookId": "18f24bfb-3fd5-492b-99bc-a6862b9d6d86"
     }
   ],
   "pinData": {
@@ -32901,11 +33012,6 @@
       "main": [
         [
           {
-            "node": "Looking into the Organization manually",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Paste Serial Numbers Here",
             "type": "main",
             "index": 0
@@ -32977,7 +33083,7 @@
       "main": [
         [
           {
-            "node": "Filter Devices by Serial List",
+            "node": "Looking into the Organization manually",
             "type": "main",
             "index": 0
           }
@@ -32988,7 +33094,7 @@
       "main": [
         [
           {
-            "node": "Process One Device at a Time",
+            "node": "Any Devices Found?",
             "type": "main",
             "index": 0
           }
@@ -32997,6 +33103,13 @@
     },
     "Process One Device at a Time": {
       "main": [
+        [
+          {
+            "node": "Generate Final Summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Check WAN 1 Status",
@@ -33010,36 +33123,7 @@
       "main": [
         [
           {
-            "node": "Is WAN 1 Active?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Is WAN 1 Active?": {
-      "main": [
-        [
-          {
-            "node": "Reset Cellular WAN 2",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Mark as Skipped",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Reset Status": {
-      "main": [
-        [
-          {
-            "node": "Evaluate Reset Status",
+            "node": "Is WAN 1 or Cellular WAN 1 Active?",
             "type": "main",
             "index": 0
           }
@@ -33050,7 +33134,14 @@
       "main": [
         [
           {
-            "node": "Combine Results",
+            "node": "More Devices to Process?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "More Devices to Process?",
             "type": "main",
             "index": 0
           }
@@ -33061,7 +33152,7 @@
       "main": [
         [
           {
-            "node": "Combine Results",
+            "node": "More Devices to Process?",
             "type": "main",
             "index": 0
           }
@@ -33072,29 +33163,7 @@
       "main": [
         [
           {
-            "node": "Wait 5 Minutes",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait 5 Minutes": {
-      "main": [
-        [
-          {
-            "node": "Check Reset Status",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Combine Results": {
-      "main": [
-        [
-          {
-            "node": "More Devices to Process?",
+            "node": "Wait 10 Seconds",
             "type": "main",
             "index": 0
           }
@@ -33118,13 +33187,89 @@
           }
         ]
       ]
+    },
+    "Any Devices Found?": {
+      "main": [
+        [
+          {
+            "node": "Process One Device at a Time",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Final Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is WAN 1 or Cellular WAN 1 Active?": {
+      "main": [
+        [
+          {
+            "node": "Has 2 Cellular WANs?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark as Skipped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has 2 Cellular WANs?": {
+      "main": [
+        [
+          {
+            "node": "Reset Cellular WAN 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reset Cellular WAN 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Cellular WAN 1": {
+      "main": [
+        [
+          {
+            "node": "Wait 10 Seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10 Seconds": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Reset Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "a9e3a26f-be00-4b23-b087-8580717a0e60",
+  "versionId": "b0eee765-3667-4c10-ac71-53f0a190917c",
   "meta": {
     "instanceId": "2c66b52e0127c2e3788469e947bcd875b93240f0a85eaa5458fa3686b8bff934"
   },
